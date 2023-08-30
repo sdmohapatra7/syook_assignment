@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data Dashboard</title>
+    <style>
+        #messageContainer {
+            max-width: 100%;
+            overflow-y: hidden;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+
+        #messageContainer p {
+            white-space: normal;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Real-Time Data Dashboard</h1>
+    <div id="messageContainer">
+        <h2>Encrypted data</h2>
+    </div>
+    <div id="dataDisplay">
+        <h2>Valid Data</h2>
+        <ul id="validDataList"></ul>
+        <p>Success Rate: <span id="successRate">0%</span></p>
+    </div>
+
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const emitterSocket = io('/emitter');
+
+        let totalMessages = 0;
+        let successCount = 0;
+
+        emitterSocket.on('connect', () => {
+            console.log('Emitter socket connected');
+        });
+
+        emitterSocket.on('messageStream', (message) => {
+            console.log('Received message:', message);
+            totalMessages++;
+            updateMessageContainer(message);
+        });
+
+        function updateMessageContainer(message) {
+            const messageContainer = document.getElementById('messageContainer');
+            const newMessage = document.createElement('p');
+            newMessage.textContent = JSON.stringify(message, null, 2)
+
+            messageContainer.appendChild(newMessage);
+
+
+            if (validateMessage(message)) {
+                successCount++;
+                updateDataDisplay();
+            }
+        }
+
+        function updateDataDisplay() {
+            const successRate = (successCount / totalMessages) * 100;
+            const successRateElement = document.getElementById('successRate');
+            successRateElement.textContent = `${successRate.toFixed(2)}%`;
+        }
+
+        function validateMessage(message) {
+
+            return true;
+        }
+    </script>
+</body>
+
+</html>
